@@ -14,7 +14,7 @@ My submission managed to get into the **top 12%** among 1917 kagglers. Although 
 
 
 
-##My approach:
+## My approach:
 
 Exploratory data analysis is always crucial in any machine learning process, it allows one to get closer to the certainty that future results will be valid, correctly interpreted, and applicable to business contexts ([a good 5 minute read on EDA](https://indatalabs.com/blog/data-science/datascience-project-exploratory-data-analysis#BYXceB0zuh9F58m4.99)). Thanks to the generosity of Kaggle community,  [good EDA scripts](https://www.kaggle.com/sudalairajkumar/simple-exploration-baseline-notebook-avito) are easy to come by. 
 
