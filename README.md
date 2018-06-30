@@ -8,37 +8,17 @@ The markdown document highlights a detailed reflection of my experience in my fi
 
 It was a challenge posed by Russia's largest classified advertisement website, where participants are required to predict the demand for an online advertisement based on a variety of data: images, text, geospatial information, unlabeled additional data, numeric data, categorical data. It is essentially a low-key time series problem, as the test set instances were in April and train set instances were predominantly in March. 
 
-My submission managed to get into the **top 12%** among 1917 kagglers. Although I was just 0.0002 short of the top 10% score, It was very refreshing and challenging to come up with a decent submission in under 20 days. 
+My submission managed to get into the **top 12%** among 1917 kagglers. My public leaderboard rmse score was 0.2200, which was just 0.0002 short of the top 10% score, and 0.095 short of the first place solution (approx. 1 percent difference),  It was very refreshing and challenging to come up with a decent submission in under 20 days. 
 
 ---
 
 
-
-## My approach:
-
-Exploratory data analysis is always crucial in any machine learning process, it allows one to get closer to the certainty that future results will be valid, correctly interpreted, and applicable to business contexts ([a good 5 minute read on EDA](https://indatalabs.com/blog/data-science/datascience-project-exploratory-data-analysis#BYXceB0zuh9F58m4.99)). Thanks to the generosity of Kaggle community,  [good EDA scripts](https://www.kaggle.com/sudalairajkumar/simple-exploration-baseline-notebook-avito) are easy to come by. 
-
-Due to my late entry to the competition, my code base was from [Benjamin](https://www.kaggle.com/bminixhofer/aggregated-features-lightgbm) and [Himanshu](https://www.kaggle.com/him4318/avito-lightgbm-with-ridge-feature-v-2-0). Thanks! Plenty of feature engineering efforts were made after some level of domain research and ask-arounds, however, the main challenge I faced were CPU and memory bottlenecks. Working with a 4-core and 16GB-ram laptop definitely frustrating as my ipython notebook kept crashing. I had to resort to renting a 8-core and 32Gb-ram cloud machine from paperspace. 
-
-I primarily focused on optimizing my Lightgbm model because of its speed. XGBoost and CatBoost were also experimented. The downside of CatBoost is that it doesn't support sparse matrices as input; because I used tdidf to handle my text features, it outputs a sparse matrix, which can't be used directly by CatBoost. I used truncated SVD to 'convert' the tdidf sparse matrix into `dataframe` form. Although I only used 10 components out of 1.4mil possible columns (to save time), they still explained 9% of the variance, which was amazing! Yandex's CatBoost algorithm deals with categorical values intelligently by transforming them in numeric values using the following formula:
-
-<a href="https://www.codecogs.com/eqnedit.php?latex=$$&space;avgTarget&space;=&space;\frac{countInClass&space;&plus;&space;prior}{totalCount&space;&plus;&space;1}&space;$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$&space;avgTarget&space;=&space;\frac{countInClass&space;&plus;&space;prior}{totalCount&space;&plus;&space;1}&space;$$" title="$$ avgTarget = \frac{countInClass + prior}{totalCount + 1} $$" /></a>
-
-More details [here](https://tech.yandex.com/catboost/doc/dg/concepts/algorithm-main-stages_cat-to-numberic-docpage/). Although it was documented that CatBoost has better performance than Lightgbm and XGBoost, in this competition, Lightgbm still trumped in terms of performance, probably because the edge CatBoost has over other boosting algorithms is very dependent on the type of data. Whichever the case, it is still hard to estimate the true reason of subpar performance for CatBoost models, since XGboost, Lightgbm and CatBoost all grow and prune their trees differently, and also have different limitations and hyperparameters. 
-
-I played around with target encodings (aka mean encodings) because the data has some high cardinality categorical features, and the downsides of tree-boosting algorithms is its inability to handle them optimally. In general, the more complicated and non-linear feature target dependency is, the more effective is target encoding. Good indicators of implementing target encoding can be:
-
-1. Presence of high cardinality features
-2. When increasing the depth of tree-boosting models, training and validation metrics naturally improves, showing no sign of overfitting. This is a sign that trees need a huge number of splits to extract information from some variables.
-
-Let's dive into my favourite part of this reflection.
-
----
 
 ## Lessons learnt
 
-- Although categorical feature interactions were experimented,  it actually worsened the rmse score. I supposed feature interactions makes overfitting easier, despite enlarging the feature space which makes learning easier. Tree-based models can really benefit from feature interactions because it is difficult to extract such dependencies without using this transformation. My mistake was I did not apply any feature selection techniques to fish out those problem features. The [7th place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/60026) mentioned that three-way interactions didn't work.
-- Numeric feature interactions between the most predictive features could boost my score even more. 
+- Although categorical feature interactions were experimented,  it actually worsened the rmse score. I supposed feature interactions makes overfitting easier, despite enlarging the feature space which makes learning easier. Tree-based models can really benefit from feature interactions because it is difficult to extract such dependencies without using this transformation. My mistake was I did not apply any feature selection techniques to fish out those problem interaction features. The [7th place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/60026) mentioned that three-way interactions didn't work.
+
+- Numeric feature interactions between the most predictive features could boost my score even more.
 
 - It is important to mimic the train/test split with a proper time-based validation split for a less biased relationship between private LB score and CV score. Multiple folds cross validation implementation for time-series train/validation split could be implemented as follows.
 
@@ -69,18 +49,22 @@ Let's dive into my favourite part of this reflection.
   
   ```
 
-- Bayesian Optimization was my main method of tuning Lightgbm and XGBoost models. Once again, because my cross validation approach was not set up to mimic the train/test split, the optimized parameters were not accurate. Fitting the optimized parameters on the entire train test actually gave a poorer score.
+- **Bayesian** **Optimization** was my main method of tuning Lightgbm and XGBoost models. Once again, because my cross validation approach was not set up to mimic the train/test split, the optimized parameters were not accurate. Fitting the optimized parameters on the entire train test actually gave a poorer score.
 
-  To put in simplified terms, underfitting is when your training metric can't improve anymore, which can be attributed to high bias, something that causes an algorithm to miss the relevant relations between features and target. High bias algorithms also produce simpler models that don't tend to overfit but may *underfit* their training data, failing to capture important regularities. We know bias as the difference between the expected prediction of our model and the correct value which we are trying to predict. I failed to detect signs of underfitting because I was too wary of overfitting. 
+  To put in simplified terms, **underfitting** is when your training metric can't improve anymore, which can be attributed to high bias, something that causes an algorithm to miss the relevant relations between features and target. High bias algorithms also produce simpler models that don't tend to overfit but may *underfit* their training data, failing to capture important regularities. We know bias as the difference between the expected prediction of our model and the correct value which we are trying to predict. I failed to detect signs of underfitting because I was too wary of overfitting. 
+
+  
 
   |                     | learning rate | training rmse | validation rmse | private LB rmse | Diff (train and LB rmse) |
   | ------------------- | ------------- | ------------- | --------------- | --------------- | ------------------------ |
   | w/o target encoding | 0.016         | 0.19099       | 0.21676         | 0.2215          | 0.0305                   |
   | w/ target encoding  | 0.016         | 0.20025       | 0.21634         | 0.2229          | 0.0227                   |
 
+  
+
   We can observe here that although it seemed like the model built w/o target encoding has a higher bias than w/ target encoding (due to higher difference between train and LB rmse), both models are underfitting the data because of the large difference between training and validation. Furthermore, validation rmse seemed to have improved for the case of target encoding, but it actually worsened the model's ability to generalize the true test set. This is purely the problem of incorrect train/validation split.
 
-  Overfitting, on the other hand, is when your training score is going down continuously while your test or validation score is going up continuously. This is because the model is too complex and suffer from high variance. The variance is how much the predictions for a given point vary between different realizations of the model. 
+  **Overfitting**, on the other hand, is when your training score is going down continuously while your test or validation score is going up continuously. This is because the model is too complex and suffer from high variance. The variance is how much the predictions for a given point vary between different realizations of the model. 
 
   I made several huge blunders because I did not access the difference between training rmse's. After reading a godsend article by [Scott Fortmann-Roe](http://scott.fortmann-roe.com/docs/BiasVariance.html), I have learnt to minimize bias even at the expense of variance. Yes, high variance is also bad, but a model with high variance could at least predict well on average, which is not *fundamentally wrong*. 
 
@@ -113,7 +97,7 @@ Let's dive into my favourite part of this reflection.
 
 - Use `hashingvectorizer`rather than straight-up tf-idf is significantly more memory efficient.
 
-- Mitigate the computationally demanding problem of using a high `n_features` parameter with truncated singular value decomposition (tSVD). (200-300 components will do fine). My mistake was that I kept my text engineering process static, because of memory bottleneck issues when I experimented with char ngrams and a higher `ngram_range`. 
+- Mitigate the computationally demanding problem of using a high `n_features` parameter with **truncated singular value decomposition** (tSVD). (200-300 components will do fine). My mistake was that I kept my text engineering process static, because of memory bottleneck issues when I experimented with char ngrams and a higher `ngram_range`. 
 
 ```python
 # Credits to https://www.kaggle.com/c/avito-demand-prediction/discussion/59881
@@ -136,6 +120,27 @@ tfidf_user_text_feats = tfidf_user_text.fit_transform(hv_feats)
 
 ---
 
+
+
+## Some more notes for myself...
+
+Exploratory data analysis is always crucial in any machine learning process, it allows one to get closer to the certainty that future results will be valid, correctly interpreted, and applicable to business contexts ([a good 5 minute read on EDA](https://indatalabs.com/blog/data-science/datascience-project-exploratory-data-analysis#BYXceB0zuh9F58m4.99)). Thanks to the generosity of Kaggle community,  [good EDA scripts](https://www.kaggle.com/sudalairajkumar/simple-exploration-baseline-notebook-avito) are easy to come by. 
+
+Due to my late entry to the competition, I built off my code based on the public kernel shared by [Benjamin](https://www.kaggle.com/bminixhofer/aggregated-features-lightgbm) and [Himanshu](https://www.kaggle.com/him4318/avito-lightgbm-with-ridge-feature-v-2-0). Thanks! Plenty of feature engineering efforts were made after some level of domain research and ask-arounds, however, the main challenge I faced were time and memory bottlenecks. Working with a 4-core and 16GB-ram laptop definitely frustrating as my ipython notebook kept crashing. I had to resort to renting a 8-core and 32Gb-ram cloud machine from Paperspace. Unfortunately, I did not have the chance to allocate enough time to conduct proper feature selection and play detective on which are the good features to keep. I had to focus my resources on training and hyperparameter tuning. 
+
+I primarily went on to optimize my Lightgbm model because of its speed. XGBoost and CatBoost were also experimented. The downside of CatBoost is that it doesn't support sparse matrices as input; because I used tdidf to handle my text features, it outputs a sparse matrix, which can't be used directly by CatBoost. I used truncated SVD to 'convert' the tdidf sparse matrix into `dataframe` form. Although I only used 10 components out of 1.4mil possible columns (to save time), they still explained 9% of the variance, which was amazing! Yandex's CatBoost algorithm deals with categorical values intelligently by transforming them in numeric values using the following formula:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=$$&space;avgTarget&space;=&space;\frac{countInClass&space;&plus;&space;prior}{totalCount&space;&plus;&space;1}&space;$$" target="_blank"><img src="https://latex.codecogs.com/gif.latex?$$&space;avgTarget&space;=&space;\frac{countInClass&space;&plus;&space;prior}{totalCount&space;&plus;&space;1}&space;$$" title="$$ avgTarget = \frac{countInClass + prior}{totalCount + 1} $$" /></a>
+
+More details [here](https://tech.yandex.com/catboost/doc/dg/concepts/algorithm-main-stages_cat-to-numberic-docpage/). Although it was documented that CatBoost has better performance than Lightgbm and XGBoost, in this competition, Lightgbm still trumped in terms of performance, probably because the edge CatBoost has over other boosting algorithms is very dependent on the type of data. Whichever the case, it is still hard to estimate the true reason of subpar performance for CatBoost models, since XGboost, Lightgbm and CatBoost all grow and prune their trees differently, and also have different limitations and hyperparameters. 
+
+Other than conducting EDA, feature engineering, modeling and hyperparameter tuning, I played around with target encodings (aka mean encodings) because the data has some high cardinality categorical features, and the downsides of tree-boosting algorithms is its inability to handle them optimally. In general, the more complicated and non-linear feature target dependency is, the more effective is target encoding. Good indicators of implementing target encoding can be:
+
+1. Presence of high cardinality features
+2. When increasing the depth of tree-boosting models, training and validation metrics naturally improves, showing no sign of overfitting. This is a sign that trees need a huge number of splits to extract information from some variables.
+
+My last submission is a weighted ensemble of different stacks of tree-boosting models, which I won't go into detail to.
+
 ### To sum it up...
 
 The key takeaway here is that I still have much to learn, and I think, this is the beauty of machine learning. It is truly amazing to be able to translate trails and evidences of activity from the public to something potentially useful. Can you imagine a number popping up to let you know how likely your product is going to be sold when you are trying to sell a pair of shoes on Avito? :joy: 
@@ -143,6 +148,8 @@ The key takeaway here is that I still have much to learn, and I think, this is t
 This project is really interesting and refreshing!
 
 ---
+
+
 
 ## Introducing my teachers:
 
