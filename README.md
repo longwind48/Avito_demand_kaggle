@@ -1,6 +1,6 @@
 # Avito Demand Prediction Challenge
 
-by: Traci
+by: Traci [[Kaggle Profile]( https://www.kaggle.com/longwind48)]
 
 ---
 
