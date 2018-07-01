@@ -25,7 +25,7 @@ My submission managed to get into the **top 12%** among 1917 kagglers. My public
   ```python
   # Credits to https://www.kaggle.com/c/avito-demand-prediction/discussion/59914
   
-  # Seperate dates from train set into 5 groups
+  # Separate dates from train set into 5 groups
   foldls = [["2017-03-15", "2017-03-16", "2017-03-17"], \
          ["2017-03-18", "2017-03-19", "2017-03-20"], \
          ["2017-03-21", "2017-03-22", "2017-03-23"], \
@@ -112,7 +112,7 @@ tfidf_user_text_feats = tfidf_user_text.fit_transform(hv_feats)
 ```
 
 - I could be more bold with my parameter selection for Lightgbm model. Instead of worrying about overfitting, a lower `learning_rate` and higher value of `num_leaves` should always be considered. Failing to experiment with this caused me to fall short of the top 10% mark! The [5th place solution](https://github.com/darraghdog/avito-demand/) had their learning rate set to 0.01 and leaves set to 1000. 
-- My implementation of target encoding still suffered from a sizable amount of underfitting, achieving a private LB score of 0.2229. I didn't build a better suited cross-validation split that mimic the train/test split. Also, I could have explored different presets of the prior weight function. the [86th place solution](https://www.kaggle.com/johnfarrell/adp-prepare-data-me-20-2-true) implemented   [target encoding](https://www.kaggle.com/c/avito-demand-prediction/discussion/59895) using a combination of data from other CV folds and strictly past data. 
+- My implementation of target encoding still suffered from a sizable amount of underfitting, achieving a private LB score of 0.2229. I didn't build a better suited cross-validation split that mimic the train/test split. Also, I could have explored different presets of the prior weight function. the [86th place solution](https://www.kaggle.com/johnfarrell/adp-prepare-data-me-20-2-true) implemented [target encoding](https://www.kaggle.com/c/avito-demand-prediction/discussion/59895) using a combination of data from other CV folds and strictly past data. 
 - Proper version control should be set up. Irregular naming of scripts and notebooks caused me so much trouble. :cry: 
 - My feature engineering efforts could be improved with a concrete plan and proper documentation. Although I consistently tracked my progress and planned my approach in google docs, It was still unorganized. I really appreciate the advice posted by [Joe](https://www.kaggle.com/c/avito-demand-prediction/discussion/56986#330023), who wrote a concise feature engineering approach. 
 - Always start early in the competition! I started 20 days before the competition ends, which is obviously not enough to go through a competitive machine learning process. What was I thinking? :sweat_smile:
@@ -143,7 +143,7 @@ My last submission is a weighted ensemble of different stacks of tree-boosting m
 
 ### To sum it up...
 
-The key takeaway here is that I still have much to learn, and I think, this is the beauty of machine learning. It is truly amazing to be able to translate trails and evidences of activity from the public to something potentially useful. Can you imagine a number popping up to let you know how likely your product is going to be sold when you are trying to sell a pair of shoes on Avito? :joy: 
+The key takeaway here is that I still have much to learn, and I think, this is the beauty of machine learning. It is truly amazing to be able to translate trails and evidence of activity from the public to something potentially useful. Can you imagine a number popping up to let you know how likely your product is going to be sold when you are trying to sell a pair of shoes on Avito?:joy: 
 
 This project is really interesting and refreshing!
 
@@ -153,7 +153,7 @@ This project is really interesting and refreshing!
 
 ## Introducing my teachers:
 
-- [3th place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/59885) 
+- [3rd place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/59885) 
 - [4th Place Solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/59881) 
 - [5th place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/59914) [[repo](https://github.com/darraghdog/avito-demand/)]
 - [7th place solution](https://www.kaggle.com/c/avito-demand-prediction/discussion/60026) 
